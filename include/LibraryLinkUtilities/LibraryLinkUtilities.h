@@ -1,0 +1,79 @@
+#pragma once
+
+#include <boost/preprocessor.hpp>
+#include <LLU/LLU.h>
+
+#include "LibraryLinkUtilities/DataTypes.h"
+
+namespace LLU {
+    template<>
+    struct MArgumentManager::Getter<string_view> {
+        static string_view get(const MArgumentManager &manager, size_t i) {
+            return manager.get<const char *>(i);
+        }
+    };
+
+    template<WS::Encoding EIn, WS::Encoding EOut>
+    WSStream<EIn, EOut> &operator<<(WSStream<EIn, EOut> &stream, string_view str) {
+        WS::String<EOut>::put(stream.get(), str.data(), str.length());
+        return stream;
+    }
+
+    template<DescribedStruct T>
+    struct MArgumentManager::Getter<T> {
+        static T get(const MArgumentManager &manager, size_t i) {
+            const auto value = manager.get<string_view>(i);
+            try {
+                return JSON::Deserialize<T>(value);
+            } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); }
+        }
+    };
+
+    template<typename T>
+    struct MArgumentManager::Getter<TimeSeriesView<T>> {
+        static TimeSeriesView<T> get(const MArgumentManager &manager, size_t i) {
+            const auto intervalSeconds = manager.get<double>(i);
+            const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
+            const auto pathLen = static_cast<int>(values.getDimensions()[0]);
+            const mdspan _values(static_cast<const T *>(values.rawData()), pathLen);
+            return {intervalSeconds, _values};
+        }
+    };
+
+    template<typename T>
+    struct MArgumentManager::Getter<TemporalDataView<T>> {
+        static TemporalDataView<T> get(const MArgumentManager &manager, size_t i) {
+            const auto intervalSeconds = manager.get<double>(i);
+            const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
+            const auto dims = values.getDimensions();
+            const auto pathCount = static_cast<int>(dims[0]), pathLen = static_cast<int>(dims[1]);
+            const mdspan _values(static_cast<const T *>(values.rawData()), pathCount, pathLen);
+            return {intervalSeconds, _values};
+        }
+    };
+}
+
+#define LLU_TRY_DESERIALIZE(r, data, Derived) \
+    if (type == BOOST_PP_STRINGIZE(Derived)) \
+        return make_unique<Derived>(JSON::Deserialize<Derived>(value));
+
+/// \brief Defines a LibraryLink getter for an abstract struct.
+/// \param C An abstract struct.
+/// \param Derived A list of derived structs.
+#define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
+    namespace LLU { \
+        template<> \
+        struct MArgumentManager::Getter<unique_ptr<C>> { \
+            static unique_ptr<C> get(const MArgumentManager &manager, size_t i) { \
+                const auto [type, value] = manager.getTuple<string_view, string_view>(i); \
+                try { \
+                    BOOST_PP_SEQ_FOR_EACH(LLU_TRY_DESERIALIZE, _, BOOST_PP_TUPLE_TO_SEQ(Derived)) \
+                } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
+                ErrorManager::throwException("InvalidArgumentError", type); \
+            } \
+        }; \
+    }
+
+/// \brief Initializes Wolfram LibraryLink.
+extern "C" DLLEXPORT
+int WolframLibrary_initialize(WolframLibraryData libData);

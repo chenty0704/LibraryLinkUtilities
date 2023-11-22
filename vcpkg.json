@@ -1,0 +1,14 @@
+{
+    "name": "library-link-utilities",
+    "version": "1.0",
+    "description": "Extended utilities for LibraryLink and WSTP",
+    "homepage": "https://github.com/chenty0704/LibraryLinkUtilities",
+    "dependencies": [
+        {"name": "vcpkg-cmake", "host": true},
+        {"name": "vcpkg-cmake-config", "host": true},
+        {"name": "boost-preprocessor"},
+        {"name": "llu"},
+        {"name": "system"}
+    ],
+    "builtin-baseline": "13c3c0fcc203d179f4443fe48d252e3ff220cbeb"
+}

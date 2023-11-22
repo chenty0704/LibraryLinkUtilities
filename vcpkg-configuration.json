@@ -1,0 +1,13 @@
+{
+    "registries": [
+        {
+            "kind": "git",
+            "repository": "https://github.com/chenty0704/vcpkg-registry",
+            "baseline": "d29e0a2ae521f2a8f710b948dbcf19842b1c4c62",
+            "packages": [
+                "llu",
+                "system"
+            ]
+        }
+    ]
+}
