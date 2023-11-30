@@ -30,6 +30,32 @@ namespace LLU {
         }
     };
 
+#define LLU_TRY_DESERIALIZE(r, data, Derived) \
+        if (type == BOOST_PP_STRINGIZE(Derived)) \
+            return make_unique<Derived>(JSON::Deserialize<Derived>(value));
+
+    /// \brief Defines a LibraryLink getter for an abstract struct.
+    /// \param C An abstract struct.
+    /// \param Derived A list of derived structs.
+#define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
+        namespace LLU { \
+            template<> \
+            struct TypeInformation<unique_ptr<C>> { \
+                static constexpr int RawArgumentCount = 2; \
+            }; \
+            \
+            template<> \
+            struct MArgumentManager::Getter<unique_ptr<C>> { \
+                static unique_ptr<C> get(const MArgumentManager &manager, size_t i) { \
+                    const auto [type, value] = manager.getTuple<string_view, string_view>(i); \
+                    try { \
+                        BOOST_PP_SEQ_FOR_EACH(LLU_TRY_DESERIALIZE, _, BOOST_PP_TUPLE_TO_SEQ(Derived)) \
+                    } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
+                    ErrorManager::throwException("InvalidArgumentError", type); \
+                } \
+            }; \
+        }
+
     template<typename T>
     struct TypeInformation<TimeSeriesView<T>> {
         static constexpr int RawArgumentCount = 2;
@@ -64,32 +90,6 @@ namespace LLU {
         }
     };
 }
-
-#define LLU_TRY_DESERIALIZE(r, data, Derived) \
-    if (type == BOOST_PP_STRINGIZE(Derived)) \
-        return make_unique<Derived>(JSON::Deserialize<Derived>(value));
-
-/// \brief Defines a LibraryLink getter for an abstract struct.
-/// \param C An abstract struct.
-/// \param Derived A list of derived structs.
-#define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
-    namespace LLU { \
-        template<> \
-        struct TypeInformation<unique_ptr<C>> { \
-            static constexpr int RawArgumentCount = 2; \
-        }; \
-        \
-        template<> \
-        struct MArgumentManager::Getter<unique_ptr<C>> { \
-            static unique_ptr<C> get(const MArgumentManager &manager, size_t i) { \
-                const auto [type, value] = manager.getTuple<string_view, string_view>(i); \
-                try { \
-                    BOOST_PP_SEQ_FOR_EACH(LLU_TRY_DESERIALIZE, _, BOOST_PP_TUPLE_TO_SEQ(Derived)) \
-                } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
-                ErrorManager::throwException("InvalidArgumentError", type); \
-            } \
-        }; \
-    }
 
 /// \brief Initializes Wolfram LibraryLink.
 extern "C" DLLEXPORT

@@ -15,5 +15,7 @@ include_directories(include)
 
 add_subdirectory(src)
 
-install(FILES cmake/LibraryLinkUtilitiesConfig.cmake
+install(FILES
+        cmake/LibraryLinkUtilitiesConfig.cmake
+        LibraryLinkUtilities.wl
         DESTINATION share/LibraryLinkUtilities)
