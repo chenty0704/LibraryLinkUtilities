@@ -4,6 +4,7 @@
 #include <LLU/LLU.h>
 
 #include "LibraryLinkUtilities/DataTypes.h"
+#include "LibraryLinkUtilities/MArgumentQueue.h"
 
 namespace LLU {
     template<>
@@ -30,14 +31,25 @@ namespace LLU {
     };
 
     template<typename T>
+    struct TypeInformation<TimeSeriesView<T>> {
+        static constexpr int RawArgumentCount = 2;
+    };
+
+    template<typename T>
     struct MArgumentManager::Getter<TimeSeriesView<T>> {
         static TimeSeriesView<T> get(const MArgumentManager &manager, size_t i) {
             const auto intervalSeconds = manager.get<double>(i);
             const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
-            const auto pathLen = static_cast<int>(values.getDimensions()[0]);
+            const auto *const dims = values.getDimensions();
+            const auto pathLen = static_cast<int>(dims[0]);
             const mdspan _values(static_cast<const T *>(values.rawData()), pathLen);
             return {intervalSeconds, _values};
         }
+    };
+
+    template<typename T>
+    struct TypeInformation<TemporalDataView<T>> {
+        static constexpr int RawArgumentCount = 2;
     };
 
     template<typename T>
@@ -45,7 +57,7 @@ namespace LLU {
         static TemporalDataView<T> get(const MArgumentManager &manager, size_t i) {
             const auto intervalSeconds = manager.get<double>(i);
             const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
-            const auto dims = values.getDimensions();
+            const auto *const dims = values.getDimensions();
             const auto pathCount = static_cast<int>(dims[0]), pathLen = static_cast<int>(dims[1]);
             const mdspan _values(static_cast<const T *>(values.rawData()), pathCount, pathLen);
             return {intervalSeconds, _values};
@@ -62,6 +74,11 @@ namespace LLU {
 /// \param Derived A list of derived structs.
 #define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
     namespace LLU { \
+        template<> \
+        struct TypeInformation<unique_ptr<C>> { \
+            static constexpr int RawArgumentCount = 2; \
+        }; \
+        \
         template<> \
         struct MArgumentManager::Getter<unique_ptr<C>> { \
             static unique_ptr<C> get(const MArgumentManager &manager, size_t i) { \

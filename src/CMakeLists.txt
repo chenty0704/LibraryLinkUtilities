@@ -5,7 +5,8 @@ add_library(LibraryLinkUtilities SHARED
 target_include_directories(LibraryLinkUtilities PUBLIC $<INSTALL_INTERFACE:include>)
 target_sources(LibraryLinkUtilities PUBLIC FILE_SET HEADERS BASE_DIRS ${HEADER_DIR} FILES
         ${HEADER_DIR}/LibraryLinkUtilities/DataTypes.h
-        ${HEADER_DIR}/LibraryLinkUtilities/LibraryLinkUtilities.h)
+        ${HEADER_DIR}/LibraryLinkUtilities/LibraryLinkUtilities.h
+        ${HEADER_DIR}/LibraryLinkUtilities/MArgumentQueue.h)
 target_link_libraries(LibraryLinkUtilities PUBLIC
         LLU::LLU
         System::System)
