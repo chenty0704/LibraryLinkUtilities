@@ -7,6 +7,10 @@
 #include "LibraryLinkUtilities/MArgumentQueue.h"
 
 namespace LLU {
+    inline vector<ErrorManager::ErrorStringData> PacletErrors = {
+        {"InvalidArgumentError", "Invalid argument `arg`."},
+    };
+
     template<>
     struct MArgumentManager::Getter<string_view> {
         static string_view get(const MArgumentManager &manager, size_t i) {
@@ -90,7 +94,3 @@ namespace LLU {
         }
     };
 }
-
-/// \brief Initializes Wolfram LibraryLink.
-extern "C" DLLEXPORT
-int WolframLibrary_initialize(WolframLibraryData libData);
