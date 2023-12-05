@@ -10,7 +10,7 @@ namespace LLU {
         static constexpr int RawArgumentCount = 1; ///< The number of raw LibraryLink arguments needed.
     };
 
-    /// \brief Provides a queue-like interface to access LibaryLink arguments.
+    /// \brief Provides a queue-like interface to get LibaryLink arguments.
     class MArgumentQueue {
     public:
         /// \brief Creates a queue of LibaryLink arguments.
@@ -33,15 +33,15 @@ namespace LLU {
         /// \return The first argument in the queue.
         template<typename T>
         MArgumentManager::RequestedType<T> Pop() {
-            auto value = _argManager.get<T>(_index);
+            auto obj = _argManager.get<T>(_index);
             _index += TypeInformation<T>::RawArgumentCount;
-            return value;
+            return obj;
         }
 
         /// \brief Sets the output of the library function.
-        /// \param value The output of the library function.
-        void Set(const auto &value) {
-            _argManager.set(value);
+        /// \param obj The output of the library function.
+        void Set(const auto &obj) {
+            _argManager.set(obj);
         }
 
     private:

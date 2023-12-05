@@ -3,7 +3,7 @@
         {
             "kind": "git",
             "repository": "https://github.com/chenty0704/vcpkg-registry",
-            "baseline": "fe2258f3e1dbda6b92a5ef820a62ed7ee282e82c",
+            "baseline": "8dc38c16ab60db87fa07672cd6d42ad9510e070a",
             "packages": [
                 "llu",
                 "system"

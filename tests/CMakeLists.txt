@@ -1,3 +1,5 @@
-add_library(LibraryLinkUtilitiesTest
-        LibraryLinkUtilitiesTest.cpp)
-target_link_libraries(LibraryLinkUtilitiesTest PRIVATE LibraryLinkUtilities)
+add_executable(LibraryLinkUtilitiesTest
+        WXFStreamTest.cpp)
+target_link_libraries(LibraryLinkUtilitiesTest PRIVATE
+        GTest::gtest_main
+        LibraryLinkUtilities)

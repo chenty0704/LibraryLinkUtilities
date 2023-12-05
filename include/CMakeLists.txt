@@ -3,7 +3,8 @@ target_include_directories(LibraryLinkUtilities INTERFACE $<INSTALL_INTERFACE:in
 target_sources(LibraryLinkUtilities INTERFACE FILE_SET HEADERS FILES
         LibraryLinkUtilities/DataTypes.h
         LibraryLinkUtilities/LibraryLinkUtilities.h
-        LibraryLinkUtilities/MArgumentQueue.h)
+        LibraryLinkUtilities/MArgumentQueue.h
+        LibraryLinkUtilities/WXFStream.h)
 target_link_libraries(LibraryLinkUtilities INTERFACE
         LLU::LLU
         System::System)

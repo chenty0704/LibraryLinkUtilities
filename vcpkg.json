@@ -6,9 +6,8 @@
     "dependencies": [
         {"name": "vcpkg-cmake", "host": true},
         {"name": "vcpkg-cmake-config", "host": true},
-        {"name": "boost-preprocessor"},
         {"name": "llu"},
         {"name": "system"}
     ],
-    "builtin-baseline": "bb588985e37484d543fc849d0d79434e0d45bb3c"
+    "builtin-baseline": "72010900b7cee36cea77aebb97695095c9358eaf"
 }

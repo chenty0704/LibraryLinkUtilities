@@ -1,10 +1,10 @@
 #pragma once
 
-#include <boost/preprocessor.hpp>
 #include <LLU/LLU.h>
 
 #include "LibraryLinkUtilities/DataTypes.h"
 #include "LibraryLinkUtilities/MArgumentQueue.h"
+#include "LibraryLinkUtilities/WXFStream.h"
 
 namespace LLU {
     inline vector<ErrorManager::ErrorStringData> PacletErrors = {
@@ -27,21 +27,23 @@ namespace LLU {
     template<DescribedStruct T>
     struct MArgumentManager::Getter<T> {
         static T get(const MArgumentManager &manager, size_t i) {
-            const auto value = manager.get<string_view>(i);
+            const auto obj = manager.get<string_view>(i);
             try {
-                return JSON::Deserialize<T>(value);
-            } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); }
+                return JSON::Deserialize<T>(obj);
+            } catch (...) { ErrorManager::throwException("InvalidArgumentError", obj); }
         }
     };
 
-#define LLU_TRY_DESERIALIZE(r, data, Derived) \
+    // @formatter:off
+
+    #define LLU_TRY_DESERIALIZE(r, data, Derived) \
         if (type == BOOST_PP_STRINGIZE(Derived)) \
-            return make_unique<Derived>(JSON::Deserialize<Derived>(value));
+            return make_unique<Derived>(JSON::Deserialize<Derived>(obj));
 
     /// \brief Defines a LibraryLink getter for an abstract struct.
     /// \param C An abstract struct.
     /// \param Derived A list of derived structs.
-#define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
+    #define LLU_DEFINE_ABSTRACT_STRUCT_GETTER(C, Derived) \
         namespace LLU { \
             template<> \
             struct TypeInformation<unique_ptr<C>> { \
@@ -51,14 +53,16 @@ namespace LLU {
             template<> \
             struct MArgumentManager::Getter<unique_ptr<C>> { \
                 static unique_ptr<C> get(const MArgumentManager &manager, size_t i) { \
-                    const auto [type, value] = manager.getTuple<string_view, string_view>(i); \
+                    const auto [type, obj] = manager.getTuple<string_view, string_view>(i); \
                     try { \
                         BOOST_PP_SEQ_FOR_EACH(LLU_TRY_DESERIALIZE, _, BOOST_PP_TUPLE_TO_SEQ(Derived)) \
-                    } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
+                    } catch (...) { ErrorManager::throwException("InvalidArgumentError", obj); } \
                     ErrorManager::throwException("InvalidArgumentError", type); \
                 } \
             }; \
         }
+
+    // @formatter:on
 
     template<typename T>
     struct TypeInformation<TimeSeriesView<T>> {
@@ -69,11 +73,11 @@ namespace LLU {
     struct MArgumentManager::Getter<TimeSeriesView<T>> {
         static TimeSeriesView<T> get(const MArgumentManager &manager, size_t i) {
             const auto intervalSeconds = manager.get<double>(i);
-            const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
-            const auto *const dims = values.getDimensions();
+            const auto vals = manager.getGenericTensor<Passing::Constant>(i + 1);
+            const auto *const dims = vals.getDimensions();
             const auto pathLen = static_cast<int>(dims[0]);
-            const mdspan _values(static_cast<const T *>(values.rawData()), pathLen);
-            return {intervalSeconds, _values};
+            const mdspan _vals(static_cast<const T *>(vals.rawData()), pathLen);
+            return {intervalSeconds, _vals};
         }
     };
 
@@ -86,11 +90,11 @@ namespace LLU {
     struct MArgumentManager::Getter<TemporalDataView<T>> {
         static TemporalDataView<T> get(const MArgumentManager &manager, size_t i) {
             const auto intervalSeconds = manager.get<double>(i);
-            const auto values = manager.getGenericTensor<Passing::Constant>(i + 1);
-            const auto *const dims = values.getDimensions();
+            const auto vals = manager.getGenericTensor<Passing::Constant>(i + 1);
+            const auto *const dims = vals.getDimensions();
             const auto pathCount = static_cast<int>(dims[0]), pathLen = static_cast<int>(dims[1]);
-            const mdspan _values(static_cast<const T *>(values.rawData()), pathCount, pathLen);
-            return {intervalSeconds, _values};
+            const mdspan _vals(static_cast<const T *>(vals.rawData()), pathCount, pathLen);
+            return {intervalSeconds, _vals};
         }
     };
 }

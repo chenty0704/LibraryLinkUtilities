@@ -49,7 +49,6 @@ struct TemporalDataView {
     /// \param i The index of the path.
     /// \return The i-th path in the collection.
     TimeSeriesView<T> operator[](int i) const {
-        const auto values = submdspan(Values, i, full_extent);
-        return {IntervalSeconds, {values.data_handle(), values.size()}};
+        return {IntervalSeconds, ToSpan(submdspan(Values, i, full_extent))};
     }
 };
