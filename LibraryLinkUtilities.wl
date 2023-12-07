@@ -1,5 +1,7 @@
 BeginPackage["LibraryLinkUtilities`", "Utilities`"];
 
+$BuildType::usage = UsageString@"$BuildType specifies whether debug or release builds of libraries will be used.";
+
 $SystemLibrariesDirectory::usage = UsageString@"$SystemLibrariesDirectory is the directory that contains libraries installed on the system.";
 
 SystemLibraryLoad::usage = UsageString@"SystemLibraryLoad[`lib`] loads the dynamic system library `lib` into the runtime.";
@@ -10,7 +12,7 @@ Get@FileNameJoin@{$SystemLibrariesDirectory, "share", "LLU", "LibraryLinkUtiliti
 
 SystemLibraryLoad[lib_String] := LibraryLoad@First@FileNames[
     lib ~~ __ ~~ ".dll",
-    FileNameJoin@{$SystemLibrariesDirectory, "bin"}
+    FileNameJoin@{$SystemLibrariesDirectory, If[$BuildType == "Release", Nothing, "debug"], "bin"}
 ];
 
 SystemLibraryLoad["boost_json"];
