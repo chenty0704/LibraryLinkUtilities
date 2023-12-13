@@ -7,6 +7,7 @@
 #include "LibraryLinkUtilities/WXFStream.h"
 
 namespace LLU {
+    /// Represents the types of LibraryLink function errors.
     inline vector<ErrorManager::ErrorStringData> PacletErrors = {
         {"InvalidArgumentError", "Invalid argument `arg`."},
     };
@@ -18,9 +19,8 @@ namespace LLU {
         }
     };
 
-    template<WS::Encoding EIn, WS::Encoding EOut>
-    WSStream<EIn, EOut> &operator<<(WSStream<EIn, EOut> &stream, string_view str) {
-        WS::String<EOut>::put(stream.get(), str.data(), str.length());
+    inline WSStream<WS::Encoding::UTF8> &operator<<(WSStream<WS::Encoding::UTF8> &stream, string_view str) {
+        WS::String<WS::Encoding::UTF8>::put(stream.get(), str.data(), static_cast<int>(str.length()));
         return stream;
     }
 

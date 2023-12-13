@@ -8,7 +8,6 @@ namespace LLU {
             Int8 = 'C',
             Int16 = 'j',
             Int32 = 'i',
-            Int64 = 'L',
             Real = 'r',
             String = 'S',
             Symbol = 's',
@@ -16,9 +15,14 @@ namespace LLU {
         };
 
         enum class WXFArrayType : unsigned char {
-            Int = 3,
+            Int8 = 0,
+            Int16 = 1,
+            Int32 = 2,
             Real = 35
         };
+
+        ifstream _stream;
+        int _length;
 
     public:
         /// \brief Creates a stream associated with a WXF file.
@@ -41,12 +45,10 @@ namespace LLU {
             return _length;
         }
 
-        template<typename T> requires is_integral_v<T>
-        InWXFStream &operator>>(T &val) {
-            if (const auto type = Read<WXFType>(); type == WXFType::Int8) val = static_cast<T>(Read<int8_t>());
-            else if (type == WXFType::Int16) val = static_cast<T>(Read<int16_t>());
-            else if (type == WXFType::Int32) val = static_cast<T>(Read<int32_t>());
-            else if (type == WXFType::Int64) val = static_cast<T>(Read<int64_t>());
+        InWXFStream &operator>>(int &val) {
+            if (const auto type = Read<WXFType>(); type == WXFType::Int8) val = Read<int8_t>();
+            else if (type == WXFType::Int16) val = Read<int16_t>();
+            else if (type == WXFType::Int32) val = Read<int32_t>();
             else throw runtime_error("Invalid type.");
             return *this;
         }
@@ -57,10 +59,30 @@ namespace LLU {
             return *this;
         }
 
+        InWXFStream &operator>>(vector<int> &vec) {
+            CheckType(WXFType::PackedArray);
+            const auto arrType = Read<WXFArrayType>();
+            if (ReadLength() != 1) throw runtime_error("Invalid rank.");
+
+            const auto len = ReadLength();
+            vec.resize(len);
+            if (arrType == WXFArrayType::Int8) {
+                vector<int8_t> buffer(len);
+                ReadArray(buffer.data(), len);
+                ranges::copy(as_const(buffer), vec.begin());
+            } else if (arrType == WXFArrayType::Int16) {
+                vector<int16_t> buffer(len);
+                ReadArray(buffer.data(), len);
+                ranges::copy(as_const(buffer), vec.begin());
+            } else if (arrType == WXFArrayType::Int32) ReadArray(vec.data(), len);
+            return *this;
+        }
+
         InWXFStream &operator>>(vector<double> &vec) {
             CheckType(WXFType::PackedArray);
             CheckArrayType(WXFArrayType::Real);
             if (ReadLength() != 1) throw runtime_error("Invalid rank.");
+
             const auto len = ReadLength();
             vec.resize(len);
             ReadArray(vec.data(), len);
@@ -69,11 +91,39 @@ namespace LLU {
 
         template<typename T>
         InWXFStream &operator>>(vector<T> &vec) {
+            if (const auto type = Read<WXFType>(); type == WXFType::PackedArray) {
+                Read<WXFArrayType>();
+                const auto dims = ReadDimensions();
+                vec.resize(dims.front());
+                ReadArray(vec.data(), static_cast<int>(vec.size()));
+            } else if (type == WXFType::Function) {
+                const auto len = ReadLength();
+                CheckSymbol("List");
+                vec.resize(len);
+                for (auto &val : vec) *this >> val;
+            } else throw runtime_error("Invalid type.");
+            return *this;
+        }
+
+        template<typename Extents>
+        InWXFStream &operator>>(mdarray<int, Extents> &arr) {
             CheckType(WXFType::PackedArray);
-            Read<WXFArrayType>();
-            const auto dims = ReadDimensions();
-            vec.resize(dims.front());
-            ReadArray(vec.data(), static_cast<int>(vec.size()));
+            const auto arrType = Read<WXFArrayType>();
+
+            static constexpr int rank = Extents::rank();
+            const auto dims = ReadDimensions<rank>();
+            const auto size = ranges::fold_left(dims, 1, multiplies());
+
+            arr = apply([](auto... vals) { return mdarray<int, Extents>(vals...); }, dims);
+            if (arrType == WXFArrayType::Int8) {
+                vector<int8_t> buffer(size);
+                ReadArray(buffer.data(), size);
+                ranges::copy(as_const(buffer), arr.data());
+            } else if (arrType == WXFArrayType::Int16) {
+                vector<int16_t> buffer(size);
+                ReadArray(buffer.data(), size);
+                ranges::copy(as_const(buffer), arr.data());
+            } else if (arrType == WXFArrayType::Int32) ReadArray(arr.data(), size);
             return *this;
         }
 
@@ -81,10 +131,13 @@ namespace LLU {
         InWXFStream &operator>>(mdarray<double, Extents> &arr) {
             CheckType(WXFType::PackedArray);
             CheckArrayType(WXFArrayType::Real);
-            static constexpr int rank = Extents().rank();
+
+            static constexpr int rank = Extents::rank();
             const auto dims = ReadDimensions<rank>();
-            arr = apply([](auto... sizes) { return mdarray<double, Extents>(sizes...); }, dims);
-            ReadArray(arr.data(), ranges::fold_left(dims, 1, multiplies()));
+            const auto size = ranges::fold_left(dims, 1, multiplies());
+
+            arr = apply([](auto... vals) { return mdarray<double, Extents>(vals...); }, dims);
+            ReadArray(arr.data(), size);
             return *this;
         }
 
@@ -92,12 +145,15 @@ namespace LLU {
         InWXFStream &operator>>(mdarray<T, Extents> &arr) {
             CheckType(WXFType::PackedArray);
             Read<WXFArrayType>();
-            static constexpr int rank = Extents().rank();
+
+            static constexpr int rank = Extents::rank();
             const auto dims = ReadDimensions();
             array<int, rank> _dims;
             copy_n(dims.cbegin(), rank, _dims.begin());
-            arr = apply([](auto... sizes) { return mdarray<T, Extents>(sizes...); }, _dims);
-            ReadArray(arr.data(), ranges::fold_left(_dims, 1, multiplies()));
+            const auto size = ranges::fold_left(_dims, 1, multiplies());
+
+            arr = apply([](auto... vals) { return mdarray<T, Extents>(vals...); }, _dims);
+            ReadArray(arr.data(), size);
             return *this;
         }
 
@@ -153,13 +209,10 @@ namespace LLU {
         void CheckSymbol(string_view name) {
             CheckType(WXFType::Symbol);
             const auto len = ReadLength();
-            if (len != name.length()) throw runtime_error("Invalid length.");
+            if (len != name.length()) throw runtime_error("Invalid symbol.");
             string str(len, '\0');
             ReadArray(str.data(), len);
             if (str != name) throw runtime_error("Invalid symbol.");
         }
-
-        ifstream _stream;
-        int _length;
     };
 }

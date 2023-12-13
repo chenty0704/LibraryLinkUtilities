@@ -12,6 +12,9 @@ namespace LLU {
 
     /// \brief Provides a queue-like interface to get LibaryLink arguments.
     class MArgumentQueue {
+        MArgumentManager _argManager;
+        int _index = 0;
+
     public:
         /// \brief Creates a queue of LibaryLink arguments.
         /// \param argc The number of arguments.
@@ -43,9 +46,5 @@ namespace LLU {
         void Set(const auto &obj) {
             _argManager.set(obj);
         }
-
-    private:
-        MArgumentManager _argManager;
-        int _index = 0;
     };
 }
