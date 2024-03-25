@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-import System;
+import System.Base;
+import System.MDArray;
 
 import LibraryLinkUtilities.WXFStream;
 

@@ -1,6 +1,7 @@
 export module LibraryLinkUtilities.WXFStream;
 
-import System;
+import System.Base;
+import System.MDArray;
 
 using namespace std;
 using namespace experimental;

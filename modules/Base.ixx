@@ -4,7 +4,8 @@ module;
 
 export module LibraryLinkUtilities.Base;
 
-import System;
+import System.Base;
+import System.JSON;
 
 using namespace std;
 

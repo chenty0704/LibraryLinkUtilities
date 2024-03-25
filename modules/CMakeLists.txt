@@ -10,7 +10,6 @@ target_sources(LibraryLinkUtilities PUBLIC
         "${HEADERS_DIR}/LLU/ErrorLog/Errors.h"
         FILE_SET CXX_MODULES FILES
         "Base.ixx"
-        "LibraryLinkUtilities.ixx"
         "MArgumentQueue.ixx"
         "TimeSeries.ixx"
         "WXFStream.ixx")

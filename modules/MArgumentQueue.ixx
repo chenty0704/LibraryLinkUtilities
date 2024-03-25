@@ -1,6 +1,6 @@
 export module LibraryLinkUtilities.MArgumentQueue;
 
-import System;
+import System.Base;
 
 import LibraryLinkUtilities.Base;
 
