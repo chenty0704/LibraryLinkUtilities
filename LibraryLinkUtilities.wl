@@ -17,6 +17,9 @@ SystemLibraryLoad[library_String] := LibraryLoad@First@FileNames[
 
 SystemLibraryLoad["boost_json"];
 
+ObjectConvert[object_Association] := ExportString[object, "JSON"];
+`LLU`MArgumentType["Object", String, ObjectConvert];
+
 OptionsConvert[options_List] := ExportString[<|options|>, "JSON"];
 `LLU`MArgumentType["Options", String, OptionsConvert];
 

@@ -15,6 +15,8 @@ export {
 }
 
 export namespace LLU {
+    namespace NodeType = Argument::Typed;
+
     using LLU::ErrorManager;
     using LLU::GenericTensor;
     using LLU::LibraryData;
@@ -22,7 +24,12 @@ export namespace LLU {
     using LLU::MArgumentManager;
     using LLU::Passing;
     using LLU::Tensor;
+    using LLU::DataList;
     using LLU::WSStream;
+
+    namespace Argument::Typed {
+        using Typed::Any;
+    }
 
     namespace ErrorCode {
         using ErrorCode::DimensionsError;
