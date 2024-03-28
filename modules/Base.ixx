@@ -6,8 +6,10 @@ export module LibraryLinkUtilities.Base;
 
 import System.Base;
 import System.JSON;
+import System.MDArray;
 
 using namespace std;
+using namespace experimental;
 
 export {
     using ::MArgument;
@@ -77,4 +79,18 @@ namespace LLU {
             } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); }
         }
     };
+
+    /// Converts a LibraryLink tensor to a multi-dimensional span.
+    /// @tparam T The type of elements.
+    /// @tparam Extents The type of dimensions.
+    /// @param values A LibraryLink tensor.
+    /// @return A multi-dimensional span of the same elements.
+    export template<typename T, typename Extents>
+    [[nodiscard]] mdspan<T, Extents> ToMDSpan(Tensor<T> &values) {
+        using IndexType = typename Extents::index_type;
+        array<IndexType, Extents::rank()> dimensions;
+        ranges::transform(values.dimensions().get(), dimensions.begin(),
+                          [](int64_t dimension) { return static_cast<IndexType>(dimension); });
+        return mdspan<T, Extents>(values.data(), dimensions);
+    }
 }
