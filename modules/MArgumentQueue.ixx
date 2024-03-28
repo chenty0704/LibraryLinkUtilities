@@ -5,20 +5,20 @@ import System.Base;
 import LibraryLinkUtilities.Base;
 
 namespace LLU {
-    /// Provides information about a requestable type from LibraryLink.
-    /// @tparam T A requestable type from LibraryLink.
+    /// Provides information about a type that can be requested from LibraryLink.
+    /// @tparam T A type that can be requested from LibraryLink.
     export template<typename T>
     struct TypeInformation {
         static constexpr int RawArgumentCount = 1; ///< The number of raw LibraryLink arguments.
     };
 
-    /// Provides a queue-like interface to get LibaryLink arguments.
+    /// Provides a queue-like interface to get LibraryLink arguments.
     export class MArgumentQueue {
         MArgumentManager _argManager;
         int _index = 0;
 
     public:
-        /// Creates a queue of LibaryLink arguments.
+        /// Creates a queue of LibraryLink arguments.
         /// @param argc The number of arguments.
         /// @param args The arguments of the library function.
         /// @param out The output of the library function.

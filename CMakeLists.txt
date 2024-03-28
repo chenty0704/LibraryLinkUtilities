@@ -8,7 +8,7 @@ project(LibraryLinkUtilities
 
 set(Boost_NO_WARN_NEW_VERSIONS ON)
 
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED CONFIG)
 find_package(LLU REQUIRED CONFIG)
 find_package(System REQUIRED CONFIG)
 

@@ -25,7 +25,7 @@
         } \
     };
 
-/// Generates LibrarayLink getters for the time series and temporal data view of the specified type.
+/// Generates LibraryLink getters for the time series and temporal data view of the specified type.
 /// @param T The type of values.
 #define LLU_GENERATE_TIME_SERIES_VIEW_GETTER(T) \
     template<> \
@@ -57,8 +57,7 @@
             const auto tensor = argManager.get<Managed<GenericTensor, Passing::Constant>>(index + 1); \
             const auto *const dimensions = tensor.getDimensions(); \
             const auto pathCount = static_cast<int>(dimensions[0]), pathLength = static_cast<int>(dimensions[1]); \
-            const mdspan<const T, dextents<int, 2>> values(static_cast<const T *>(tensor.rawData()), \
-                                                           pathCount, pathLength); \
+            const mdspan<const T, dims<2>> values(static_cast<const T *>(tensor.rawData()), pathCount, pathLength); \
             return {intervalSeconds, values}; \
         } \
     };

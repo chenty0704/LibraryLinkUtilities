@@ -6,8 +6,10 @@ export module LibraryLinkUtilities.Base;
 
 import System.Base;
 import System.JSON;
+import System.MDArray;
 
 using namespace std;
+using namespace experimental;
 
 export {
     using ::MArgument;
@@ -15,8 +17,6 @@ export {
 }
 
 export namespace LLU {
-    namespace NodeType = Argument::Typed;
-
     using LLU::ErrorManager;
     using LLU::GenericTensor;
     using LLU::LibraryData;
@@ -41,6 +41,8 @@ export namespace LLU {
         using ErrorCode::TypeError;
         using ErrorCode::VersionError;
     }
+
+    namespace NodeType = Argument::Typed;
 
     namespace WS {
         using WS::Encoding;
@@ -77,4 +79,36 @@ namespace LLU {
             } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); }
         }
     };
+
+    /// Converts a LibraryLink tensor to a multidimensional span.
+    /// @tparam T The type of elements.
+    /// @tparam Extents The type of dimensions.
+    /// @param values A LibraryLink tensor.
+    /// @return A multidimensional span of the same elements.
+    export template<typename T, typename Extents>
+    [[nodiscard]] mdspan<T, Extents> ToMDSpan(Tensor<T> &values) {
+        if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
+
+        using IndexType = typename Extents::index_type;
+        array<IndexType, Extents::rank()> dimensions;
+        ranges::transform(values.dimensions().get(), dimensions.begin(),
+                          [](int64_t dimension) { return static_cast<IndexType>(dimension); });
+        return {values.data(), dimensions};
+    }
+
+    /// Converts a constant tensor to a constant multidimensional span.
+    /// @tparam T The type of values.
+    /// @tparam Extents The type of dimensions.
+    /// @param values A constant tensor.
+    /// @return A constant multidimensional span of the same elements.
+    export template<typename T, typename Extents>
+    [[nodiscard]] mdspan<const T, Extents> ToMDSpan(const Tensor<T> &values) {
+        if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
+
+        using IndexType = typename Extents::index_type;
+        array<IndexType, Extents::rank()> dimensions;
+        ranges::transform(values.dimensions().get(), dimensions.begin(),
+                          [](int64_t dimension) { return static_cast<IndexType>(dimension); });
+        return {values.data(), dimensions};
+    }
 }

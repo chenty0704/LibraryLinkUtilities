@@ -24,7 +24,7 @@ TEST(InWXFStreamTest, BasicInput) {
     stream >> values;
     EXPECT_EQ(values, views::iota(0, 10) | ranges::to<vector>());
 
-    mdarray<int, dextents<int, 2>> matrix;
+    mdarray<int, dims<2>> matrix;
     stream >> matrix;
     EXPECT_EQ(matrix.container(), vector({
                   1, 0, 0,

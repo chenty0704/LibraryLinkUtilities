@@ -35,7 +35,7 @@ namespace LLU {
     export template<typename T>
     struct TemporalDataView {
         double IntervalSeconds; ///< The interval between two values in seconds.
-        mdspan<const T, dextents<int, 2>> Values; ///< A 2D array of values.
+        mdspan<const T, dims<2>> Values; ///< A 2D array of values.
 
         /// Returns the number of paths in the collection.
         /// @return The number of paths in the collection.
