@@ -55,6 +55,7 @@ export namespace LLU {
 namespace LLU {
     /// Represents the types of LibraryLink function errors.
     export vector<ErrorManager::ErrorStringData> PacletErrors = {
+        {"NativeError", "``"},
         {"InvalidArgumentError", "Invalid argument `arg`."},
     };
 
@@ -110,5 +111,20 @@ namespace LLU {
         ranges::transform(values.dimensions().get(), dimensions.begin(),
                           [](int64_t dimension) { return static_cast<IndexType>(dimension); });
         return {values.data(), dimensions};
+    }
+
+    /// Tries to invoke a function with LibraryLink-specific error handling.
+    /// @tparam Fun The type of the function.
+    /// @param fun A function to invoke.
+    /// @return A LibraryLink error code.
+    export template<invocable Fun>
+    int TryInvoke(Fun fun) {
+        try { fun(); } catch (const LibraryLinkError &e) { return e.id(); }
+        catch (const exception &e) {
+            try {
+                ErrorManager::throwException("NativeError", e.what());
+            } catch (const LibraryLinkError &_e) { return _e.id(); }
+        }
+        return ErrorCode::NoError;
     }
 }
