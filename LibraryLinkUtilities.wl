@@ -23,6 +23,7 @@ ObjectConvert[object_Association] := ExportString[object, "JSON"];
 OptionsConvert[options_List] := ExportString[<|options|>, "JSON"];
 `LLU`MArgumentType["Options", String, OptionsConvert];
 
+TypedOptionsConvert[type_String] := Sequence[type ~~ "Options", "{}"];
 TypedOptionsConvert[options_List] := Sequence[First[options] ~~ "Options", ExportString[<|Rest[options]|>, "JSON"]];
 `LLU`MArgumentType["TypedOptions", {String, String}, TypedOptionsConvert];
 

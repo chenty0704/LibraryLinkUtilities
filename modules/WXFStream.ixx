@@ -24,7 +24,7 @@ namespace LLU {
     public:
         /// Creates a stream associated with a WXF file.
         /// @param path The path to the WXF file.
-        explicit InWXFStream(string_view path) : _stream(path.data(), ios::binary) {
+        explicit InWXFStream(const filesystem::path &path) : _stream(path, ios::binary) {
             if (!_stream.is_open()) throw runtime_error("Invalid file name.");
 
             string header(2, '\0');
@@ -37,28 +37,28 @@ namespace LLU {
         }
 
         /// Returns the number of parts in the WXF file.
-        /// @return The number of parts in the WXF file.
+        /// @returns The number of parts in the WXF file.
         [[nodiscard]] int Length() const noexcept {
             return _length;
         }
 
         InWXFStream &operator>>(int &value) {
-            if (const auto type = Read<WXFType>(); type == WXFType::Int8) value = Read<int8_t>();
-            else if (type == WXFType::Int16) value = Read<int16_t>();
-            else if (type == WXFType::Int32) value = Read<int32_t>();
+            if (const auto type = ReadRaw<WXFType>(); type == WXFType::Int8) value = ReadRaw<int8_t>();
+            else if (type == WXFType::Int16) value = ReadRaw<int16_t>();
+            else if (type == WXFType::Int32) value = ReadRaw<int32_t>();
             else throw runtime_error("Invalid type.");
             return *this;
         }
 
         InWXFStream &operator>>(double &value) {
             CheckType(WXFType::Real);
-            value = Read<double>();
+            value = ReadRaw<double>();
             return *this;
         }
 
         InWXFStream &operator>>(vector<int> &values) {
             CheckType(WXFType::PackedArray);
-            const auto arrayType = Read<WXFArrayType>();
+            const auto arrayType = ReadRaw<WXFArrayType>();
             if (ReadLength() != 1) throw runtime_error("Invalid rank.");
 
             const auto length = ReadLength();
@@ -99,7 +99,7 @@ namespace LLU {
         template<typename Extents>
         InWXFStream &operator>>(mdarray<int, Extents> &values) {
             CheckType(WXFType::PackedArray);
-            const auto arrayType = Read<WXFArrayType>();
+            const auto arrayType = ReadRaw<WXFArrayType>();
 
             static constexpr auto rank = static_cast<int>(Extents::rank());
             const auto dimensions = ReadDimensions<rank>();
@@ -134,7 +134,7 @@ namespace LLU {
 
     private:
         template<typename T>
-        T Read() {
+        T ReadRaw() {
             T value;
             _stream.read(reinterpret_cast<char *>(&value), sizeof(T));
             return value;
@@ -148,7 +148,7 @@ namespace LLU {
         int ReadLength() {
             auto length = 0;
             for (auto i = 0; i < sizeof(int); ++i) {
-                const auto value = Read<byte>();
+                const auto value = ReadRaw<byte>();
                 if (value >> 7 == byte{0}) {
                     length += to_integer<int>(value) << i * 7;
                     break;
@@ -167,11 +167,11 @@ namespace LLU {
         }
 
         void CheckType(WXFType type) {
-            if (Read<WXFType>() != type) throw runtime_error("Invalid type.");
+            if (ReadRaw<WXFType>() != type) throw runtime_error("Invalid type.");
         }
 
         void CheckArrayType(WXFArrayType type) {
-            if (Read<WXFArrayType>() != type) throw runtime_error("Invalid type.");
+            if (ReadRaw<WXFArrayType>() != type) throw runtime_error("Invalid type.");
         }
 
         void CheckSymbol(string_view name) {

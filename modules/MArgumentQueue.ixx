@@ -8,7 +8,7 @@ namespace LLU {
     /// Provides information about a type that can be requested from LibraryLink.
     /// @tparam T A type that can be requested from LibraryLink.
     export template<typename T>
-    struct TypeInformation {
+    struct TypeInfo {
         static constexpr int RawArgumentCount = 1; ///< The number of raw LibraryLink arguments.
     };
 
@@ -27,7 +27,7 @@ namespace LLU {
 
         /// Returns the first argument in the queue.
         /// @tparam T The requested type.
-        /// @return The first argument in the queue.
+        /// @returns The first argument in the queue.
         template<typename T>
         [[nodiscard]] MArgumentManager::RequestedType<T> Peek() const {
             return _argManager.get<T>(_index);
@@ -35,17 +35,17 @@ namespace LLU {
 
         /// Removes the first argument in the queue.
         /// @tparam T The requested type.
-        /// @return The first argument in the queue.
+        /// @returns The first argument in the queue.
         template<typename T>
         MArgumentManager::RequestedType<T> Pop() {
             auto value = _argManager.get<T>(_index);
-            _index += TypeInformation<T>::RawArgumentCount;
+            _index += TypeInfo<T>::RawArgumentCount;
             return value;
         }
 
         /// Sets the output of the library function.
         /// @param value The output of the library function.
-        void Set(const auto &value) {
+        void SetOutput(const auto &value) {
             _argManager.set(value);
         }
     };

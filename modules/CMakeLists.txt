@@ -14,7 +14,6 @@ target_sources(LibraryLinkUtilities PUBLIC
         "TimeSeries.ixx"
         "WXFStream.ixx")
 target_link_libraries(LibraryLinkUtilities PUBLIC
-        Boost::headers
         LLU::LLU
         System::System)
 
