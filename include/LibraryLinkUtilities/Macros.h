@@ -10,14 +10,14 @@
 /// @param Derived A list of derived structs.
 #define LLU_GENERATE_ABSTRACT_STRUCT_GETTER(C, Derived) \
     template<> \
-    struct LLU::TypeInformation<unique_ptr<C>> { \
+    struct LLU::TypeInfo<unique_ptr<C>> { \
         static constexpr int RawArgumentCount = 2; \
     }; \
     \
     template<> \
     struct LLU::MArgumentManager::Getter<unique_ptr<C>> { \
         [[nodiscard]] static unique_ptr<C> get(const MArgumentManager &argManager, size_t index) { \
-            const auto [type, value] = argManager.getTuple<string_view, string_view>(index); \
+            const auto [type, value] = argManager.getTuple<string, string>(index); \
             try { \
                 FOR_EACH(LLU_TRY_DESERIALIZE, Derived) \
             } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
@@ -29,7 +29,7 @@
 /// @param T The type of values.
 #define LLU_GENERATE_TIME_SERIES_VIEW_GETTER(T) \
     template<> \
-    struct LLU::TypeInformation<LLU::TimeSeriesView<T>> { \
+    struct LLU::TypeInfo<LLU::TimeSeriesView<T>> { \
         static constexpr int RawArgumentCount = 2; \
     }; \
     \
@@ -46,7 +46,7 @@
     }; \
     \
     template<> \
-    struct LLU::TypeInformation<LLU::TemporalDataView<T>> { \
+    struct LLU::TypeInfo<LLU::TemporalDataView<T>> { \
         static constexpr int RawArgumentCount = 2; \
     }; \
     \

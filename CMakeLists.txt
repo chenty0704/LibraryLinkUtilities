@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.31)
 
 project(LibraryLinkUtilities
         VERSION 1.0
@@ -6,9 +6,6 @@ project(LibraryLinkUtilities
         HOMEPAGE_URL "https://github.com/chenty0704/LibraryLinkUtilities"
         LANGUAGES CXX)
 
-set(Boost_NO_WARN_NEW_VERSIONS ON)
-
-find_package(Boost REQUIRED CONFIG)
 find_package(LLU REQUIRED CONFIG)
 find_package(System REQUIRED CONFIG)
 
