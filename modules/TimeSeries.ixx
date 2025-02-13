@@ -1,6 +1,7 @@
 export module LibraryLinkUtilities.TimeSeries;
 
 import System.Base;
+import System.Math;
 import System.MDArray;
 
 using namespace std;
@@ -24,6 +25,16 @@ namespace LLU {
         /// @returns The duration of the path in seconds.
         [[nodiscard]] double DurationSeconds() const noexcept {
             return PathLength() * IntervalSeconds;
+        }
+
+        /// Returns a subset of the time series within the specified window.
+        /// @param offsetSeconds The offset of the window in seconds.
+        /// @param durationSeconds The duration of the window in seconds.
+        /// @returns A subset of the time series within the specified window.
+        [[nodiscard]] TimeSeriesView Window(double offsetSeconds, double durationSeconds) const {
+            const auto offset = Math::Ceiling(offsetSeconds / IntervalSeconds);
+            const auto count = Math::Ceiling((offsetSeconds + durationSeconds) / IntervalSeconds) - offset;
+            return {IntervalSeconds, Values.subspan(offset, count)};
         }
     };
 
@@ -57,6 +68,16 @@ namespace LLU {
         /// @returns The path at the specified index.
         [[nodiscard]] TimeSeriesView<T> operator[](int index) const {
             return {IntervalSeconds, span(&Values[index, 0], PathLength())};
+        }
+
+        /// Returns a subset of the temporal data within the specified window.
+        /// @param offsetSeconds The offset of the window in seconds.
+        /// @param durationSeconds The duration of the window in seconds.
+        /// @returns A subset of the temporal data within the specified time.
+        [[nodiscard]] TemporalDataView Window(double offsetSeconds, double durationSeconds) const {
+            const auto offset = Math::Ceiling(offsetSeconds / IntervalSeconds);
+            const auto count = Math::Ceiling((offsetSeconds + durationSeconds) / IntervalSeconds) - offset;
+            return {IntervalSeconds, submdspan(Values, full_extent, pair(offset, offset + count))};
         }
     };
 }
