@@ -48,13 +48,13 @@ namespace LLU {
         /// Returns the number of paths in the collection.
         /// @returns The number of paths in the collection.
         [[nodiscard]] int PathCount() const noexcept {
-            return Values.extent(0);
+            return static_cast<int>(Values.extent(0));
         }
 
         /// Returns the length of each path.
         /// @returns The length of each path.
         [[nodiscard]] int PathLength() const noexcept {
-            return Values.extent(1);
+            return static_cast<int>(Values.extent(1));
         }
 
         /// Returns the duration of each path in seconds.
