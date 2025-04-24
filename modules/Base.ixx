@@ -41,6 +41,10 @@ export namespace LLU {
     }
 
     namespace NodeType = Argument::Typed;
+
+    namespace WS {
+        template struct PutScalar<wsint64>;
+    }
 }
 
 namespace LLU {

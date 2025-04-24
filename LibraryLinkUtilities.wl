@@ -8,11 +8,11 @@ SystemLibraryLoad::usage = UsageString@"SystemLibraryLoad[`library`] loads the d
 
 Begin["`Private`"];
 
-Get@FileNameJoin@{$SystemLibrariesDirectory, "share", "LLU", "LibraryLinkUtilities.wl"};
+Get@FileNameJoin[$SystemLibrariesDirectory, "share", "LLU", "LibraryLinkUtilities.wl"];
 
 SystemLibraryLoad[library_String] := LibraryLoad@First@FileNames[
     library ~~ __ ~~ ".dll",
-    FileNameJoin@{$SystemLibrariesDirectory, If[$BuildType == "Release", Nothing, "debug"], "bin"}
+    FileNameJoin[$SystemLibrariesDirectory, If[$BuildType == "Release", Nothing, "debug"], "bin"]
 ];
 
 SystemLibraryLoad["boost_json"];
@@ -32,7 +32,8 @@ Do[`LLU`MArgumentType[LibraryDataType[TimeSeries, type],
     {Real, {type, _, "Constant"}}, TimeSeriesConvert
 ], {type, {Real, Integer}}];
 
-TemporalDataConvert[data_TemporalData] := Sequence[First@MinimumTimeIncrement[data], data["ValueList"]];
+TemporalDataConvert[data_TemporalData] := Sequence[
+    If[data["PathCount"] > 1, First@MinimumTimeIncrement[data], MinimumTimeIncrement[data]], data["ValueList"]];
 Do[`LLU`MArgumentType[LibraryDataType[TemporalData, type],
     {Real, {type, _, "Constant"}}, TemporalDataConvert
 ], {type, {Real, Integer}}];
