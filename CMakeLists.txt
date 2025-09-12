@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.31)
+cmake_minimum_required(VERSION 4.1)
 
 project(LibraryLinkUtilities
         VERSION 1.0
@@ -12,6 +12,9 @@ find_package(System REQUIRED CONFIG)
 add_subdirectory("modules")
 add_subdirectory("tests")
 
+install(FILES "${LLU_DIR}/LibraryLinkUtilities.wl"
+        DESTINATION "share/LibraryLinkUtilities"
+        RENAME "LLU.wl")
 install(FILES
         "cmake/LibraryLinkUtilitiesConfig.cmake"
         "LibraryLinkUtilities.wl"

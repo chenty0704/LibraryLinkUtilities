@@ -73,7 +73,7 @@ namespace LLU {
     [[nodiscard]] mdspan<T, Extents> ToMDSpan(Tensor<T> &values) {
         if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
 
-        using IndexType = typename Extents::index_type;
+        using IndexType = Extents::index_type;
         array<IndexType, Extents::rank()> dimensions;
         ranges::transform(values.dimensions().get(), dimensions.begin(),
                           [](int64_t dimension) { return static_cast<IndexType>(dimension); });
@@ -89,7 +89,7 @@ namespace LLU {
     [[nodiscard]] mdspan<const T, Extents> ToMDSpan(const Tensor<T> &values) {
         if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
 
-        using IndexType = typename Extents::index_type;
+        using IndexType = Extents::index_type;
         array<IndexType, Extents::rank()> dimensions;
         ranges::transform(values.dimensions().get(), dimensions.begin(),
                           [](int64_t dimension) { return static_cast<IndexType>(dimension); });
@@ -98,12 +98,15 @@ namespace LLU {
 
     /// Tries to invoke a function with LibraryLink-specific error handling.
     /// @tparam Fun The type of the function.
-    /// @param fun A function to invoke.
+    /// @param function A function to invoke.
     /// @returns A LibraryLink error code.
     export template<invocable Fun>
-    int TryInvoke(Fun fun) {
-        try { fun(); } catch (const LibraryLinkError &e) { return e.id(); }
-        catch (const exception &e) {
+    int TryInvoke(Fun function) {
+        try {
+            function();
+        } catch (const LibraryLinkError &e) {
+            return e.id();
+        } catch (const exception &e) {
             try {
                 ErrorManager::throwException("NativeError", e.what());
             } catch (const LibraryLinkError &_e) { return _e.id(); }

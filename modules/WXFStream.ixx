@@ -38,7 +38,7 @@ namespace LLU {
 
         /// Returns the number of parts in the WXF file.
         /// @returns The number of parts in the WXF file.
-        [[nodiscard]] int Length() const noexcept {
+        [[nodiscard]] int Length() const {
             return _length;
         }
 
@@ -149,10 +149,7 @@ namespace LLU {
             auto length = 0;
             for (auto i = 0; i < sizeof(int); ++i) {
                 const auto value = ReadRaw<byte>();
-                if (value >> 7 == byte{0}) {
-                    length += to_integer<int>(value) << i * 7;
-                    break;
-                }
+                if (value >> 7 == byte{0}) return length + (to_integer<int>(value) << i * 7);
                 length += to_integer<int>(value & ~(byte{1} << 7)) << i * 7;
             }
             return length;
@@ -162,7 +159,7 @@ namespace LLU {
         array<int, rank> ReadDimensions() {
             if (ReadLength() != rank) throw runtime_error("Invalid rank.");
             array<int, rank> dimensions;
-            for (auto i = 0; i < rank; ++i) dimensions[i] = ReadLength();
+            for (auto &dimension : dimensions) dimension = ReadLength();
             return dimensions;
         }
 

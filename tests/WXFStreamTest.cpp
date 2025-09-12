@@ -12,17 +12,17 @@ TEST(InWXFStreamTest, BasicInput) {
     LLU::InWXFStream stream("resources/TestData.wxf");
     EXPECT_EQ(stream.Length(), 4);
 
-    int intValue;
-    stream >> intValue;
-    EXPECT_EQ(intValue, 1024);
+    int intVal;
+    stream >> intVal;
+    EXPECT_EQ(intVal, 1024);
 
-    double realValue;
-    stream >> realValue;
-    EXPECT_EQ(realValue, 3.14);
+    double realVal;
+    stream >> realVal;
+    EXPECT_EQ(realVal, 3.14);
 
-    vector<int> values;
-    stream >> values;
-    EXPECT_EQ(values, views::iota(0, 10) | ranges::to<vector>());
+    vector<int> list;
+    stream >> list;
+    EXPECT_EQ(list, views::iota(0, 10) | ranges::to<vector>());
 
     mdarray<int, dims<2>> matrix;
     stream >> matrix;
