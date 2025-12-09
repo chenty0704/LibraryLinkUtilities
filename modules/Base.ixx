@@ -7,6 +7,7 @@ export module LibraryLinkUtilities.Base;
 import System.Base;
 import System.JSON;
 import System.MDArray;
+import System.Reflection;
 
 using namespace std;
 
