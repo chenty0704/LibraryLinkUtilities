@@ -4,14 +4,9 @@ import System.Base;
 
 import LibraryLinkUtilities.Base;
 
-namespace LLU {
-    /// Provides information about a type that can be requested from LibraryLink.
-    /// @tparam T A type that can be requested from LibraryLink.
-    export template<typename T>
-    struct TypeInfo {
-        static constexpr int RawArgumentCount = 1; ///< The number of raw LibraryLink arguments.
-    };
+using namespace std;
 
+namespace LLU {
     /// Provides a queue-like interface to get LibraryLink arguments.
     export class MArgumentQueue {
         MArgumentManager _argManager;
@@ -39,7 +34,8 @@ namespace LLU {
         template<typename T>
         MArgumentManager::RequestedType<T> Pop() {
             auto value = _argManager.get<T>(_index);
-            _index += TypeInfo<T>::RawArgumentCount;
+            if constexpr (!requires { typename MArgumentManager::CustomType<T>::CorrespondingTypes; }) ++_index;
+            else _index += tuple_size_v<typename MArgumentManager::CustomType<T>::CorrespondingTypes>;
             return value;
         }
 
