@@ -10,8 +10,8 @@
 /// @param Derived A list of derived structs.
 #define LLU_GENERATE_ABSTRACT_STRUCT_GETTER(T, Derived) \
     template<> \
-    struct LLU::TypeInfo<unique_ptr<T>> { \
-        static constexpr int RawArgumentCount = 2; \
+    struct LLU::MArgumentManager::CustomType<unique_ptr<T>> { \
+        using CorrespondingTypes = tuple<string, string>; \
     }; \
     \
     template<> \
@@ -29,8 +29,8 @@
 /// @param T The type of values.
 #define LLU_GENERATE_TIME_SERIES_VIEW_GETTER(T) \
     template<> \
-    struct LLU::TypeInfo<LLU::TimeSeriesView<T>> { \
-        static constexpr int RawArgumentCount = 2; \
+    struct LLU::MArgumentManager::CustomType<LLU::TimeSeriesView<T>> { \
+        using CorrespondingTypes = tuple<double, Managed<GenericTensor, Passing::Constant>>; \
     }; \
     \
     template<> \
@@ -46,8 +46,8 @@
     }; \
     \
     template<> \
-    struct LLU::TypeInfo<LLU::TemporalDataView<T>> { \
-        static constexpr int RawArgumentCount = 2; \
+    struct LLU::MArgumentManager::CustomType<LLU::TemporalDataView<T>> { \
+        using CorrespondingTypes = tuple<double, Managed<GenericTensor, Passing::Constant>>; \
     }; \
     \
     template<> \
