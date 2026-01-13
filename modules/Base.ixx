@@ -55,6 +55,16 @@ namespace LLU {
         {"InvalidArgumentError", "Invalid argument `arg`."},
     };
 
+    export template<>
+    struct MArgumentManager::CustomType<filesystem::path> {
+        using CorrespondingTypes = tuple<string>;
+    };
+
+    export template<DescribedStruct T>
+    struct MArgumentManager::CustomType<T> {
+        using CorrespondingTypes = tuple<string>;
+    };
+
     export template<DescribedStruct T>
     struct MArgumentManager::Getter<T> {
         [[nodiscard]] static T get(const MArgumentManager &argManager, size_t index) {
