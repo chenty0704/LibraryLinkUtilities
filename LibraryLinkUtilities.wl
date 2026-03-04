@@ -4,6 +4,8 @@ Begin["`Private`"];
 
 Get["LLU`"];
 
+SetSystemOptions["LibraryLinkOptions" -> "TestFloatingPointExceptions" -> False];
+
 ObjectConvert[object_Association] := ExportString[object, "JSON"];
 `LLU`MArgumentType["Object", String, ObjectConvert];
 
