@@ -75,6 +75,21 @@ namespace LLU {
         }
     };
 
+    export template<DescribedStruct T>
+    struct MArgumentManager::CustomType<unique_ptr<T>> {
+        using CorrespondingTypes = tuple<string>;
+    };
+
+    export template<DescribedStruct T>
+    struct MArgumentManager::Getter<unique_ptr<T>> {
+        [[nodiscard]] static unique_ptr<T> get(const MArgumentManager &argManager, size_t index) {
+            const auto value = argManager.get<string>(index);
+            try {
+                return JSON::Deserialize<unique_ptr<T>>(value);
+            } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); }
+        }
+    };
+
     /// Converts a LibraryLink tensor to a multidimensional span.
     /// @tparam T The type of elements.
     /// @tparam Extents The type of dimensions.

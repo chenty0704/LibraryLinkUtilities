@@ -2,32 +2,9 @@
 
 #include <System/Macros.h>
 
-#define LLU_TRY_DESERIALIZE(Derived) \
-    if (type == STRINGIZE(Derived)) return make_unique<Derived>(JSON::Deserialize<Derived>(value));
-
-/// Generates a LibraryLink getter for an abstract struct.
-/// @param T An abstract struct.
-/// @param Derived A list of derived structs.
-#define LLU_GENERATE_ABSTRACT_STRUCT_GETTER(T, Derived) \
-    template<> \
-    struct LLU::MArgumentManager::CustomType<unique_ptr<T>> { \
-        using CorrespondingTypes = tuple<string, string>; \
-    }; \
-    \
-    template<> \
-    struct LLU::MArgumentManager::Getter<unique_ptr<T>> { \
-        [[nodiscard]] static unique_ptr<T> get(const MArgumentManager &argManager, size_t index) { \
-            const auto [type, value] = argManager.getTuple<string, string>(index); \
-            try { \
-                FOR_EACH(LLU_TRY_DESERIALIZE, Derived) \
-            } catch (...) { ErrorManager::throwException("InvalidArgumentError", value); } \
-            ErrorManager::throwException("InvalidArgumentError", type); \
-        } \
-    };
-
-/// Generates LibraryLink getters for the time series and temporal data view of the specified type.
+/// Registers a time series type for LibraryLink passing.
 /// @param T The type of values.
-#define LLU_GENERATE_TIME_SERIES_VIEW_GETTER(T) \
+#define LLU_REGISTER_TIME_SERIES_TYPE(T) \
     template<> \
     struct LLU::MArgumentManager::CustomType<LLU::TimeSeriesView<T>> { \
         using CorrespondingTypes = tuple<double, Managed<GenericTensor, Passing::Constant>>; \

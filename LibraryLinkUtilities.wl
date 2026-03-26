@@ -1,5 +1,7 @@
 BeginPackage["LibraryLinkUtilities`", "Utilities`"];
 
+FromTypedOptions::usage = UsageString@"FromTypedOptions[`options`] converts `options` to the standard form.";
+
 Begin["`Private`"];
 
 Get["LLU`"];
@@ -9,12 +11,8 @@ SetSystemOptions["LibraryLinkOptions" -> "TestFloatingPointExceptions" -> False]
 ObjectConvert[object_Association] := ExportString[object, "JSON"];
 `LLU`MArgumentType["Object", String, ObjectConvert];
 
-OptionsConvert[options_List] := ExportString[options, "JSON"];
+OptionsConvert[options_List] := If[Length[options] > 0, ExportString[options, "JSON"], "{}"];
 `LLU`MArgumentType["Options", String, OptionsConvert];
-
-TypedOptionsConvert[type_String] := Sequence[type ~~ "Options", "{}"];
-TypedOptionsConvert[options_List] := Sequence[First[options] ~~ "Options", ExportString[Rest[options], "JSON"]];
-`LLU`MArgumentType["TypedOptions", {String, String}, TypedOptionsConvert];
 
 TimeSeriesConvert[series_TimeSeries] := Sequence[MinimumTimeIncrement[series], series["Values"]];
 Do[`LLU`MArgumentType[LibraryDataType[TimeSeries, type],
@@ -26,6 +24,9 @@ TemporalDataConvert[data_TemporalData] :=
 Do[`LLU`MArgumentType[LibraryDataType[TemporalData, type],
     {Real, {type, _, "Constant"}}, TemporalDataConvert
 ], {type, {Real, Integer}}];
+
+FromTypedOptions[type_String] := {"$Type" -> type ~~ "Options"};
+FromTypedOptions[options_List] := Prepend[Rest[options], "$Type" -> First[options] ~~ "Options"];
 
 End[];
 
