@@ -6,12 +6,10 @@ target_include_directories(LibraryLinkUtilities PUBLIC
         "$<INSTALL_INTERFACE:include>")
 target_sources(LibraryLinkUtilities PUBLIC
         FILE_SET HEADERS BASE_DIRS "${HEADERS_DIR}" FILES
-        "${HEADERS_DIR}/LibraryLinkUtilities/Macros.h"
         "${HEADERS_DIR}/LLU/ErrorLog/Errors.h"
         FILE_SET CXX_MODULES FILES
         "Base.ixx"
         "MArgumentQueue.ixx"
-        "TimeSeries.ixx"
         "WXFStream.ixx")
 target_link_libraries(LibraryLinkUtilities PUBLIC
         LLU::LLU
