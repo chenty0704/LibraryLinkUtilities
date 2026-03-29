@@ -39,6 +39,15 @@ namespace LLU {
             return value;
         }
 
+        /// Removes the first tensor in the queue.
+        /// @tparam T The type of values.
+        /// @tparam Mode The mode of passing.
+        /// @returns The first tensor in the queue.
+        template<typename T, Passing Mode = Passing::Automatic>
+        Tensor<T> PopTensor() {
+            return _argManager.getTensor<T, Mode>(_index++);
+        }
+
         /// Sets the output of the library function.
         /// @param value The output of the library function.
         void SetOutput(const auto &value) {

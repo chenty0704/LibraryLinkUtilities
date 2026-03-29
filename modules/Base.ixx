@@ -152,7 +152,7 @@ namespace LLU {
     struct MArgumentManager::Getter<TimeSeriesView<T>> {
         [[nodiscard]] static TimeSeriesView<T> get(const MArgumentManager &argManager, size_t index) {
             const auto intervalSeconds = argManager.get<double>(index);
-            const auto values = argManager.get<Managed<GenericTensor, Passing::Constant>>(index + 1);
+            const auto values = argManager.getGenericTensor<Passing::Constant>(index + 1);
             const auto *const dimensions = values.getDimensions();
             const auto pathLength = static_cast<int>(dimensions[0]);
             const span _values(static_cast<const T *>(values.rawData()), pathLength);
@@ -169,7 +169,7 @@ namespace LLU {
     struct MArgumentManager::Getter<TemporalDataView<T>> {
         [[nodiscard]] static TemporalDataView<T> get(const MArgumentManager &argManager, size_t index) {
             const auto intervalSeconds = argManager.get<double>(index);
-            const auto values = argManager.get<Managed<GenericTensor, Passing::Constant>>(index + 1);
+            const auto values = argManager.getGenericTensor<Passing::Constant>(index + 1);
             const auto *const dimensions = values.getDimensions();
             const auto pathCount = static_cast<int>(dimensions[0]), pathLength = static_cast<int>(dimensions[1]);
             const mdspan<const T, dims<2>> _values(static_cast<const T *>(values.rawData()), pathCount, pathLength);
@@ -177,11 +177,11 @@ namespace LLU {
         }
     };
 
-    /// Converts a LibraryLink tensor to a multidimensional span.
-    /// @tparam T The type of elements.
+    /// Converts a tensor to a multidimensional span.
+    /// @tparam T The type of values.
     /// @tparam Extents The type of dimensions.
-    /// @param values A LibraryLink tensor.
-    /// @returns A multidimensional span of the same elements.
+    /// @param values A tensor.
+    /// @returns A multidimensional span of the same values.
     export template<typename T, typename Extents>
     [[nodiscard]] mdspan<T, Extents> ToMDSpan(Tensor<T> &values) {
         if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
@@ -197,7 +197,7 @@ namespace LLU {
     /// @tparam T The type of values.
     /// @tparam Extents The type of dimensions.
     /// @param values A constant tensor.
-    /// @returns A constant multidimensional span of the same elements.
+    /// @returns A constant multidimensional span of the same values.
     export template<typename T, typename Extents>
     [[nodiscard]] mdspan<const T, Extents> ToMDSpan(const Tensor<T> &values) {
         if (values.rank() != static_cast<int>(Extents::rank())) throw runtime_error("Invalid rank.");
