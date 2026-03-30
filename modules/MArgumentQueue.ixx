@@ -48,6 +48,14 @@ namespace LLU {
             return _argManager.getTensor<T, Mode>(_index++);
         }
 
+        /// Removes the first data vector in the queue.
+        /// @tparam Mode The mode of passing.
+        /// @returns The first data vector in the queue.
+        template<Passing Mode = Passing::Automatic>
+        DataVector PopDataVector() {
+            return _argManager.getDataVector<Mode>(_index++);
+        }
+
         /// Sets the output of the library function.
         /// @param value The output of the library function.
         void SetOutput(const auto &value) {

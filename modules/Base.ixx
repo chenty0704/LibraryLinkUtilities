@@ -18,6 +18,7 @@ export {
 
 export namespace LLU {
     using LLU::DataList;
+    using LLU::DataVector;
     using LLU::ErrorManager;
     using LLU::GenericTensor;
     using LLU::LibraryData;
@@ -28,6 +29,10 @@ export namespace LLU {
 
     namespace Argument::Typed {
         using Typed::Any;
+    }
+
+    namespace DV {
+        using DV::NumericData;
     }
 
     namespace ErrorCode {
