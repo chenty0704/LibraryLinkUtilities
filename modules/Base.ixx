@@ -113,17 +113,17 @@ namespace LLU {
         }
     };
 
-    export template<>
+    template<>
     struct MArgumentManager::CustomType<filesystem::path> {
         using CorrespondingTypes = tuple<string>;
     };
 
-    export template<DescribedStruct T>
+    template<DescribedStruct T>
     struct MArgumentManager::CustomType<T> {
         using CorrespondingTypes = tuple<string>;
     };
 
-    export template<DescribedStruct T>
+    template<DescribedStruct T>
     struct MArgumentManager::Getter<T> {
         [[nodiscard]] static T get(const MArgumentManager &argManager, size_t index) {
             const auto value = argManager.get<string>(index);
@@ -133,12 +133,12 @@ namespace LLU {
         }
     };
 
-    export template<DescribedStruct T>
+    template<DescribedStruct T>
     struct MArgumentManager::CustomType<unique_ptr<T>> {
         using CorrespondingTypes = tuple<string>;
     };
 
-    export template<DescribedStruct T>
+    template<DescribedStruct T>
     struct MArgumentManager::Getter<unique_ptr<T>> {
         [[nodiscard]] static unique_ptr<T> get(const MArgumentManager &argManager, size_t index) {
             const auto value = argManager.get<string>(index);
@@ -148,12 +148,12 @@ namespace LLU {
         }
     };
 
-    export template<typename T>
+    template<typename T>
     struct MArgumentManager::CustomType<TimeSeriesView<T>> {
         using CorrespondingTypes = tuple<double, Managed<GenericTensor, Passing::Constant>>;
     };
 
-    export template<typename T>
+    template<typename T>
     struct MArgumentManager::Getter<TimeSeriesView<T>> {
         [[nodiscard]] static TimeSeriesView<T> get(const MArgumentManager &argManager, size_t index) {
             const auto intervalSeconds = argManager.get<double>(index);
@@ -165,12 +165,12 @@ namespace LLU {
         }
     };
 
-    export template<typename T>
+    template<typename T>
     struct MArgumentManager::CustomType<TemporalDataView<T>> {
         using CorrespondingTypes = tuple<double, Managed<GenericTensor, Passing::Constant>>;
     };
 
-    export template<typename T>
+    template<typename T>
     struct MArgumentManager::Getter<TemporalDataView<T>> {
         [[nodiscard]] static TemporalDataView<T> get(const MArgumentManager &argManager, size_t index) {
             const auto intervalSeconds = argManager.get<double>(index);
